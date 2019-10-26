@@ -53,13 +53,7 @@ public class BankMenu implements View {
 		case 0:
 			return new MainMenu();
 		case 1:
-			List<MemoryBank> res = null;
-			try {
-				res = new MemoryBankDao().getProcessesAccounts(currentProcess.getId());
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			showAll(res);
+			viewAccounts();
 			return new AccountTransferMenu(currentProcess);
 
 		case 2:
@@ -73,8 +67,19 @@ public class BankMenu implements View {
 			return null;
 		}
 	}
+	
+	public void viewAccounts() {
+		List<MemoryBank> res = null;
+		try {
+			res = new MemoryBankDao().getProcessesAccounts(currentProcess.getId());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		new BankMenu().showAll(res);
+	}
 
 	public void showAll(List<MemoryBank> banks) {
+		System.out.println();
 		for (MemoryBank bank : banks) {
 			int id = bank.getId();
 			int stackBytes = bank.getStackBytesAvailable();
@@ -82,19 +87,21 @@ public class BankMenu implements View {
 			int bytes = stackBytes > 0 ? stackBytes : heapBytes;
 
 			String accountType = stackBytes > 0 ? "Stack" : "Heap ";
-			
-			System.out.println(accountType + " Account - Account #: " + id + " - " + accountType + " size: " + bytes + " bytes");
+
+			System.out.println(
+					accountType + " Account - Account #: " + id + " - " + accountType + " size: " + bytes + " bytes");
 		}
+		System.out.println();
 	}
 
 	public void createAccount(Process process) {
-		System.out.println(process);
-		System.out.println("========== Create New Heap or Stack =========");
+		System.out.println("============ Welcome to Your Bank ===========");
 		System.out.println("====|______________________________|____ ====");
 		System.out.println("====||    -|   |=   -|   |-   -|   |-  ||====");
+		System.out.println("====||    -| 6 |-   -| 0 |-   -| 1 |-  ||====");
 		System.out.println("====||    -|   |-   -|   |-   -|   |-  ||====");
-		System.out.println("====||  c -|   |-   -|   |-   -|   |-  ||====");
 		System.out.println("====||||||-|___|-|||-|___|-|||-|___|-__||====");
+		System.out.println("---------------------------------------------");
 
 		System.out.println("");
 
