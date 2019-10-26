@@ -45,8 +45,6 @@ public class ProcessDao {
 
 			ResultSet result = statement.executeQuery();
 
-//			System.out.println(result);
-
 			if (result.next()) {
 				System.out.println("Attemping to register process...");
 				return extractProcess(result);
@@ -61,7 +59,6 @@ public class ProcessDao {
 	
 	public void killAllThreads(Process process) {
 		try (Connection connection = ConnectionUtil.getConnection()) {
-			System.out.println(process);
 			String sql = "DELETE FROM processes WHERE process_id = ?";
 			
 			PreparedStatement statement = connection.prepareStatement(sql);
@@ -99,17 +96,6 @@ public class ProcessDao {
 		}
 	}
 
-	// starts transaction
-	//	connection.setAutoCommit(false);
-
-	// rollback transaction
-	//	connection.rollback();
-
-	// commit transaction
-	//	connection.commit();
-
-	//	connection.setTransactionIsolation(
-	//			Connection.TRANSACTION_REPEATABLE_READ);
 	public List<Process> getProcessesByProcessName(String processName) {
 		try (Connection connection = ConnectionUtil.getConnection()) {
 			String sql = "SELECT * FROM processes WHERE LOWER(first_name) = LOWER(?)";
@@ -133,7 +119,7 @@ public class ProcessDao {
 			return null;
 		}
 	}
-
+	
 	// converts a resultSet into Java Object
 	private Process extractProcess(ResultSet resultSet) throws SQLException {
 		System.out.println("");
