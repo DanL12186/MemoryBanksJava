@@ -17,7 +17,7 @@ public class ConnectionUtil {
 		String pgUrl = "jdbc:postgresql://localhost:5432/postgres"; 
 		try {
 			return DriverManager.getConnection(pgUrl, 
-				   System.get("NAME"), // set env vars for username + password; e.g. SET ENV[USERNAME] = "memory_manager"
+				   System.getenv("NAME"), // set env vars for username + password; e.g. SET ENV[USERNAME] = "memory_manager"
 				   System.getenv("PWORD")); //url = System.getE | same as above, use System.getEnv('key') instead of string literals
 		} catch (SQLException e) {
 			e.printStackTrace();
