@@ -63,6 +63,22 @@ public class MemoryBankDao {
 		}
 	}
 	
+	public void depositOrWithdraw(int bankId, int amount) {
+		try (Connection connection = ConnectionUtil.getConnection()) {
+			
+			String sql = "UPDATE memory_banks SET heap_bytes_available = heap_bytes_available + ? WHERE bank_id = ?";
+			PreparedStatement statement = connection.prepareStatement(sql);
+			statement.setInt(1, amount);
+			statement.setInt(2, bankId);
+
+			statement.executeUpdate();
+			
+
+		} catch (SQLException err) {
+			err.printStackTrace();
+		}
+	}
+	
 	//grab all banks of a particular process and return them in a list
 	public List<MemoryBank> getProcessesAccounts(int processId) throws SQLException {
 		try (Connection connection = ConnectionUtil.getConnection()) {
@@ -85,8 +101,51 @@ public class MemoryBankDao {
 		}
 		System.out.println("Process # " + processId + " not found");
 		throw new SQLException();
-	}		
-		
+	}
+	
+	public int transfer(int amount, int withdrawAccId, int depositAccId) {
+		Connection connection = ConnectionUtil.getConnection();
+		try {
+			connection.setAutoCommit(false);
+
+			String withdrawSQL = "UPDATE memory_banks SET heap_bytes_available = heap_bytes_available - ? WHERE bank_id = ? RETURNING heap_bytes_available";
+			String depositSQL  = "UPDATE memory_banks SET heap_bytes_available = heap_bytes_available + ? WHERE bank_id = ?";
+			
+			PreparedStatement withdrawStatement = connection.prepareStatement(withdrawSQL);
+			PreparedStatement depositStatement  = connection.prepareStatement(depositSQL);
+
+			//Set and execute deposit statement
+			depositStatement.setInt(1, amount);
+			depositStatement.setInt(2, depositAccId);
+			depositStatement.executeUpdate();
+
+			//Set and execute withdraw statement
+			withdrawStatement.setInt(1, amount);
+			withdrawStatement.setInt(2, withdrawAccId);
+			withdrawStatement.execute();
+
+			//Get result set from RETURNING clause
+			ResultSet res = withdrawStatement.getResultSet();
+			
+			System.out.println("res: " + res);
+			if (res.next()) {
+				int balance = res.getInt("heap_bytes_available");
+				connection.commit();
+				connection.close();
+				return balance;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("SQLException");
+			try {
+				connection.rollback();
+				connection.close();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+		}
+		return 0;
+	}
 		
 	private MemoryBank extractAccount(ResultSet res) throws SQLException {
 		int bankId = res.getInt("bank_id");
@@ -99,78 +158,4 @@ public class MemoryBankDao {
 		return bank;
 	}
 }
-
-		
-//	//find join tables with a an id of process passed in
-//	public List<MemoryBank> findProcessAccounts(Process process) {
-//		try (Connection connection = ConnectionUtil.getConnection()) {
-//			int id = process.getId();
-//			String sql = "SELECT * process_banks WHERE process_id = ?";
-//
-//			PreparedStatement statement = connection.prepareStatement(sql);
-//
-//			statement.setInt(1, id);
-//
-//			ResultSet result = statement.executeQuery();
-//			
-////			List<MemoryBank> accounts = new ArrayList<>();
-//			
-//			List<ResultSet> banks;
-//			//going to have to "convert" join tables to memory banks (accounts)
-//			
-//			while (result.next()) {
-//				MemoryBank banks = getSpecificUsersAccounts(result);
-//			}
-//
-//			return banks;
-//			
-//			while (result.next()) {
-//				System.out.println(result);
-//			}
-//			
-//		} catch (SQLException e) {
-//			System.out.println("");
-//		}
-//	}
-//	//SEEE HERE ------------------>>>>>>>>>>>>>>>>>>>>VVVVVVVVVVVVVVVVVVVVVVVV
-//	//perfect example of getting account via join!!!
-//	public List<ResultSet> getSpecificUsersAccounts(int processId) {
-//		try (Connection connection = ConnectionUtil.getConnection()) {
-//			String sql = "SELECT * FROM memory_bank JOIN process_banks USING(bank_id) WHERE process_id = ?";
-//			
-//			PreparedStatement statement = connection.prepareStatement(sql);
-//			
-//			statement.setInt(1, processId);
-//
-//			ResultSet result = statement.executeQuery();
-//			
-//			List<MemoryBank> accounts = new ArrayList<>();
-//			
-//			while (result.next()) {
-//				System.out.println(result);
-//				MemoryBank acc = getBankById(result);
-//				accounts.add(acc);
-//			}
-//			
-//			return accounts;
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		}
-//	}
-	
-//	public MemoryBank getBankById(ResultSet res) {
-//		int id = res.getInt("bank_id");
-//		
-//		String sql = "SELECT * FROM memory_bank JOIN process_banks USING(bank_id) WHERE process_id = ?";
-//		
-//		PreparedStatement statement = connection.prepareStatement(sql);
-//		
-//		statement.setInt(1, processId);
-//
-//		ResultSet result = statement.executeQuery();
-//
-//		return 0;
-//		
-//	}
-
 
