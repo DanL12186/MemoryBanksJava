@@ -1,17 +1,3 @@
-//Application must support the following functionalities: 
-//+Users should be able to create an account
-//+Users should be able to log in to an account with a correct user name and password.
-//+Users should be able to create checking/savings accounts under their account.
-//     Accounts should support:
-//+Standard single-user accounts
-//Joint accounts (multiuser) with any number of users
-//Users should be able to deposit to a specified account.
-//Users should be able to withdraw from an account.
-//Users should be able to conduct a balance check on an account
-//Users should be able to transfer money from one account to another account.
-//~Users should be able to close an account.
-//+Users should be able to retrieve data between login sessions and application execution.
-
 package com.revature.views;
 
 import com.revature.dao.MemoryBankDao;
