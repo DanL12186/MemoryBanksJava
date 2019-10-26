@@ -2,8 +2,6 @@ package com.revature.views;
 
 import com.revature.util.ScannerUtil;
 
-import java.sql.SQLException;
-
 import com.revature.dao.ProcessDao;
 import com.revature.models.Process;
 
